@@ -21,7 +21,6 @@ jobs:
       - name: Update target 
         run : | 
           sudo apt-get install mingw-w64
-          rustup component add rust-mingw
           rustup target add ${{ matrix.target }}    
 
       - name: Build
