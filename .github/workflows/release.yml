@@ -1,0 +1,44 @@
+name: Release Rust Program
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64-unknown-linux-musl, x86_64-apple-darwin, x86_64-pc-windows-gnu] 
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.target }}
+      - name: Update target 
+        run : rustup target add ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Package
+        run: |
+          mkdir staging
+          cp target/${{ matrix.target }}/release/target/release/relay_board_rs_485 staging/
+          tar -czvf target/release/relay_board_rs_485-${{ matrix.target }}.tar.gz -C staging .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: RelayBoardRs485-${{ matrix.target }}.tar.gz
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          body: |
+            # Release Notes
+            - TODO
+            # Download for ${{ matrix.target }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
