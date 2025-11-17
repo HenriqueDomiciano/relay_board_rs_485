@@ -17,6 +17,8 @@ jobs:
         toolchain: stable
         components: clippy, rustfmt 
         profile: minimal 
+    - name: Install libudev-dev
+      run: sudo apt-get update && sudo apt-get install -y libudev-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests
