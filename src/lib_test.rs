@@ -12,6 +12,7 @@ use serialport::Parity;
 use serialport::StopBits;
 // Just For Testing purposes; 
 
+#[allow(dead_code)]
 pub struct DummySerialPort{
     buffer: Vec<u8>, 
     pos: usize
@@ -27,7 +28,7 @@ impl Read for DummySerialPort {
         Ok(n)
     }
 }
-
+#[allow(dead_code)]
 impl Write for DummySerialPort {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         // Just swallow writes (or store them if you prefer)
@@ -40,7 +41,7 @@ impl Write for DummySerialPort {
     }
 }
 
-
+#[allow(dead_code)]
 impl SerialPort for DummySerialPort {
     fn name(&self) -> Option<String> { None }
 
