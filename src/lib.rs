@@ -6,12 +6,12 @@ use std::time::Duration;
 
 const ACTION_COMMAND: u8 = 6;
 const READ_STATUS_COMMAND: u8 = 3;
-#[derive(Debug,Clone,PartialEq,ValueEnum)]
+#[derive(Debug, Clone, PartialEq, ValueEnum)]
 pub enum ActionCommandsEnum {
     Open,
     Close,
     Toggle,
-    Latch ,
+    Latch,
     Momentary,
     Delay,
     OpenAll,
@@ -124,7 +124,11 @@ impl RelayBoardRS485 {
             address,
         }
     }
-    fn build_status_command(&self, starting_register_address: u16, register_length: u16) -> Vec<u8> {
+    fn build_status_command(
+        &self,
+        starting_register_address: u16,
+        register_length: u16,
+    ) -> Vec<u8> {
         let mut final_command: Vec<u8> = Vec::new();
         let command = StatusCommandStruct {
             slave_id: self.address,

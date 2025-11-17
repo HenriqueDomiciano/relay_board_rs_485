@@ -1,7 +1,10 @@
-use std::{fmt::{self, Display}, time::Duration};
+use std::{
+    fmt::{self, Display},
+    time::Duration,
+};
 
-use relay_board_rs_485::{ActionCommandsEnum, RelayBoardRS485};
 use clap::{Parser, ValueEnum};
+use relay_board_rs_485::{ActionCommandsEnum, RelayBoardRS485};
 
 #[derive(Debug, Clone, ValueEnum)]
 enum CommandTypes {
@@ -12,8 +15,8 @@ enum CommandTypes {
 impl Display for CommandTypes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            CommandTypes::Action => write!(f,"ACTION"),
-            CommandTypes::Status => write!(f,"STATUS"),
+            CommandTypes::Action => write!(f, "ACTION"),
+            CommandTypes::Status => write!(f, "STATUS"),
         }
     }
 }
@@ -42,7 +45,7 @@ struct Args {
     #[arg(short = 't', long, default_value_t = 10)]
     timeout_ms: u64,
 
-    #[arg(short ='d', long, default_value_t = 0)]
+    #[arg(short = 'd', long, default_value_t = 0)]
     delay_time_ms: u8,
 }
 
@@ -73,25 +76,29 @@ fn main() {
             }
         },
         Some(value) => match args.command_type {
-            
             CommandTypes::Action => match args.action_command {
                 None => {
                     let status = relay_board.get_status(1, 8).data[value as usize];
-                    println!("{}",status); 
+                    println!("{}", status);
                 }
-                Some(action) => 
-                    match action {
-                        ActionCommandsEnum::Close => relay_board.close_channel(value, args.delay_time_ms),
-                        ActionCommandsEnum::Open => relay_board.open_channel(value, args.delay_time_ms),
-                        ActionCommandsEnum::Latch => relay_board.latch_channel(value, args.delay_time_ms),
-                        ActionCommandsEnum::Toggle => relay_board.toogle_channel(value, args.delay_time_ms),
-                        ActionCommandsEnum::Delay => relay_board.delay_time(value, args.delay_time_ms),
-                        _ => panic!("Not supported type for specific relay command"),
+                Some(action) => match action {
+                    ActionCommandsEnum::Close => {
+                        relay_board.close_channel(value, args.delay_time_ms)
                     }
+                    ActionCommandsEnum::Open => relay_board.open_channel(value, args.delay_time_ms),
+                    ActionCommandsEnum::Latch => {
+                        relay_board.latch_channel(value, args.delay_time_ms)
+                    }
+                    ActionCommandsEnum::Toggle => {
+                        relay_board.toogle_channel(value, args.delay_time_ms)
+                    }
+                    ActionCommandsEnum::Delay => relay_board.delay_time(value, args.delay_time_ms),
+                    _ => panic!("Not supported type for specific relay command"),
+                },
             },
             CommandTypes::Status => {
                 let status = relay_board.get_status(1, 8).data[value as usize];
-                println!("{}",status); 
+                println!("{}", status);
             }
         },
     }
