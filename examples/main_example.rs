@@ -1,6 +1,6 @@
 use std::{time::Duration};
 
-use RelayBoardRS485::RelayBoardRS485;
+use relay_board_rs_485::RelayBoardRS485;
 
 fn main(){
     let serial_port = serialport::new("/dev/ttyUSB0",9600).timeout(Duration::from_millis(1000)).open().expect("Unable to open port"); 

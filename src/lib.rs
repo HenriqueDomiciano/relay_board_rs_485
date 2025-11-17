@@ -1,3 +1,4 @@
+use clap::ValueEnum;
 use serialport::SerialPort;
 use std::io::{self, Write};
 use std::thread::sleep;
@@ -5,29 +6,29 @@ use std::time::Duration;
 
 const ACTION_COMMAND: u8 = 6;
 const READ_STATUS_COMMAND: u8 = 3;
-
+#[derive(Debug,Clone,PartialEq,ValueEnum)]
 pub enum ActionCommandsEnum {
-    OPEN,
-    CLOSE,
-    TOGGLE,
-    LATCH,
-    MOMENTARY,
-    DELAY,
-    OPEN_ALL,
-    CLOSE_ALL,
+    Open,
+    Close,
+    Toggle,
+    Latch ,
+    Momentary,
+    Delay,
+    OpenAll,
+    CloseAll,
 }
 
 impl ActionCommandsEnum {
     pub fn value(&self) -> u8 {
         match *self {
-            ActionCommandsEnum::OPEN => 0x01,
-            ActionCommandsEnum::CLOSE => 0x02,
-            ActionCommandsEnum::TOGGLE => 0x03,
-            ActionCommandsEnum::LATCH => 0x04,
-            ActionCommandsEnum::MOMENTARY => 0x05,
-            ActionCommandsEnum::DELAY => 0x06,
-            ActionCommandsEnum::OPEN_ALL => 0x07,
-            ActionCommandsEnum::CLOSE_ALL => 0x08,
+            ActionCommandsEnum::Open => 0x01,
+            ActionCommandsEnum::Close => 0x02,
+            ActionCommandsEnum::Toggle => 0x03,
+            ActionCommandsEnum::Latch => 0x04,
+            ActionCommandsEnum::Momentary => 0x05,
+            ActionCommandsEnum::Delay => 0x06,
+            ActionCommandsEnum::OpenAll => 0x07,
+            ActionCommandsEnum::CloseAll => 0x08,
         }
     }
 }
@@ -37,7 +38,7 @@ pub struct StatusCommandResponseStruct {
     slave_id: u8,
     function: u8,
     data_lenght: u8,
-    data: Box<Vec<u16>>,
+    pub data: Box<Vec<u16>>,
     crc: u16,
 }
 
@@ -66,9 +67,9 @@ impl StatusCommandResponseStruct {
             panic!("CRC Received is different than calculated CRC");
         }
         Self {
-            slave_id: slave_id,
-            function: function,
-            data_lenght: data_lenght,
+            slave_id,
+            function,
+            data_lenght,
             data: Box::new(data_value_u16),
             crc,
         }
@@ -78,7 +79,7 @@ impl StatusCommandResponseStruct {
 pub struct StatusCommandStruct {
     slave_id: u8,
     function: u8,
-    starting_register_adress: u16,
+    starting_register_address: u16,
     register_length: u16,
 }
 impl StatusCommandStruct {
@@ -86,7 +87,7 @@ impl StatusCommandStruct {
         let mut buffer: [u8; 6] = [0; 6];
         buffer[0..1].copy_from_slice(&self.slave_id.to_be_bytes());
         buffer[1..2].copy_from_slice(&self.function.to_be_bytes());
-        buffer[2..4].copy_from_slice(&self.starting_register_adress.to_be_bytes());
+        buffer[2..4].copy_from_slice(&self.starting_register_address.to_be_bytes());
         buffer[4..6].copy_from_slice(&self.register_length.to_be_bytes());
         buffer
     }
@@ -123,13 +124,13 @@ impl RelayBoardRS485 {
             address,
         }
     }
-    fn build_status_command(&self, starting_register_adress: u16, register_lenght: u16) -> Vec<u8> {
+    fn build_status_command(&self, starting_register_address: u16, register_length: u16) -> Vec<u8> {
         let mut final_command: Vec<u8> = Vec::new();
         let command = StatusCommandStruct {
             slave_id: self.address,
             function: READ_STATUS_COMMAND,
-            starting_register_adress: starting_register_adress,
-            register_length: register_lenght,
+            starting_register_address,
+            register_length,
         };
         let crc = &RelayBoardRS485::mod_bus_crc_calculation(&command.to_bytes()).to_be_bytes();
         final_command.extend_from_slice(&command.to_bytes());
@@ -151,7 +152,7 @@ impl RelayBoardRS485 {
             function: ACTION_COMMAND,
             address: channel,
             command: command.value(),
-            delay_time: delay_time,
+            delay_time,
         };
         let crc = RelayBoardRS485::mod_bus_crc_calculation(&command.to_bytes());
         let crc_u8 = &crc.to_be_bytes();
@@ -174,7 +175,7 @@ impl RelayBoardRS485 {
     }
 
     fn read_mod_bus_until_timeout(&mut self) -> Vec<u8> {
-        let timeout_ms: f64 = (35 as f64
+        let timeout_ms: f64 = (35_f64
             / self
                 .serial_port
                 .baud_rate()
@@ -205,7 +206,7 @@ impl RelayBoardRS485 {
     }
     pub fn send_command(&mut self, command: Vec<u8>) {
         self.serial_port
-            .write(&command)
+            .write_all(&command)
             .expect("Failed to send data to relay");
         sleep(Duration::from_millis(30));
     }
@@ -221,39 +222,38 @@ impl RelayBoardRS485 {
         let command = self.build_status_command(starting_register_adress, register_lenght);
         self.send_command(command);
         let buffer = self.read_mod_bus_until_timeout();
-        let status = StatusCommandResponseStruct::from_bytes(&buffer);
-        status
+        StatusCommandResponseStruct::from_bytes(&buffer)
     }
     pub fn close_channel(&mut self, channel: u16, delay_time: u8) {
-        let command = self.build_action_command(channel, ActionCommandsEnum::CLOSE, delay_time);
+        let command = self.build_action_command(channel, ActionCommandsEnum::Close, delay_time);
         self.send_command(command);
     }
 
     pub fn open_channel(&mut self, channel: u16, delay_time: u8) {
-        let command = self.build_action_command(channel, ActionCommandsEnum::OPEN, delay_time);
+        let command = self.build_action_command(channel, ActionCommandsEnum::Open, delay_time);
         self.send_command(command);
     }
 
     pub fn toogle_channel(&mut self, channel: u16, delay_time: u8) {
-        let command = self.build_action_command(channel, ActionCommandsEnum::TOGGLE, delay_time);
+        let command = self.build_action_command(channel, ActionCommandsEnum::Toggle, delay_time);
         self.send_command(command);
     }
 
     pub fn latch_channel(&mut self, channel: u16, delay_time: u8) {
-        let command = self.build_action_command(channel, ActionCommandsEnum::LATCH, delay_time);
+        let command = self.build_action_command(channel, ActionCommandsEnum::Latch, delay_time);
         self.send_command(command);
     }
     pub fn delay_time(&mut self, channel: u16, delay_time: u8) {
-        let command = self.build_action_command(channel, ActionCommandsEnum::DELAY, delay_time);
+        let command = self.build_action_command(channel, ActionCommandsEnum::Delay, delay_time);
         self.send_command(command);
     }
     pub fn open_all(&mut self, delay_time: u8) {
-        let command = self.build_action_command(0, ActionCommandsEnum::OPEN_ALL, delay_time);
+        let command = self.build_action_command(0, ActionCommandsEnum::OpenAll, delay_time);
         self.send_command(command);
     }
 
     pub fn close_all(&mut self, delay_time: u8) {
-        let command = self.build_action_command(0, ActionCommandsEnum::CLOSE_ALL, delay_time);
+        let command = self.build_action_command(0, ActionCommandsEnum::CloseAll, delay_time);
         self.send_command(command);
     }
 

@@ -10,7 +10,7 @@ use serialport::Error;
 use serialport::FlowControl;
 use serialport::Parity;
 use serialport::StopBits;
-//// Just For Testing purposes; 
+// Just For Testing purposes; 
 
 pub struct DummySerialPort{
     buffer: Vec<u8>, 
@@ -54,35 +54,35 @@ impl SerialPort for DummySerialPort {
     }
 
 
-    fn set_baud_rate(&mut self, baud_rate: u32) -> serialport::Result<()> {
+    fn set_baud_rate(&mut self, _baud_rate: u32) -> serialport::Result<()> {
         todo!()
     }
 
-    fn set_data_bits(&mut self, data_bits: serialport::DataBits) -> serialport::Result<()> {
+    fn set_data_bits(&mut self, _data_bits: serialport::DataBits) -> serialport::Result<()> {
         todo!()
     }
     
-    fn set_flow_control(&mut self, flow_control: serialport::FlowControl) -> serialport::Result<()> {
+    fn set_flow_control(&mut self, _flow_control: serialport::FlowControl) -> serialport::Result<()> {
         todo!()
     }
     
-    fn set_parity(&mut self, parity: serialport::Parity) -> serialport::Result<()> {
+    fn set_parity(&mut self, _parity: serialport::Parity) -> serialport::Result<()> {
         todo!()
     }
     
-    fn set_stop_bits(&mut self, stop_bits: serialport::StopBits) -> serialport::Result<()> {
+    fn set_stop_bits(&mut self, _stop_bits: serialport::StopBits) -> serialport::Result<()> {
         todo!()
     }
     
-    fn set_timeout(&mut self, timeout: Duration) -> serialport::Result<()> {
+    fn set_timeout(&mut self, _timeout: Duration) -> serialport::Result<()> {
         todo!()
     }
     
-    fn write_request_to_send(&mut self, level: bool) -> serialport::Result<()> {
+    fn write_request_to_send(&mut self, _level: bool) -> serialport::Result<()> {
         todo!()
     }
     
-    fn write_data_terminal_ready(&mut self, level: bool) -> serialport::Result<()> {
+    fn write_data_terminal_ready(&mut self, _level: bool) -> serialport::Result<()> {
         todo!()
     }
     
@@ -135,14 +135,14 @@ mod tests
     fn test_crc(){
         let command:[u8;6] = [0x01,0x06,0x00,0x01,0x01,0x00];
         let crc  = RelayBoardRS485::mod_bus_crc_calculation(&command); 
-        assert_eq!(crc, 0xD99a);     
+        assert_eq!(crc, 0xd99a);     
     }
     #[test]
     fn test_build_action_command()
     {
         let expected_command: Vec<u8> = [0x01,0x06,0x0,1,1,0,0xd9,0x9a].to_vec();
         let relay_object = RelayBoardRS485{serial_port:Box::new(DummySerialPort{buffer:Vec::new(),pos:0}),address:0x01};
-        let command = relay_object.build_action_command(1, ActionCommandsEnum::OPEN, 0);
+        let command = relay_object.build_action_command(1, ActionCommandsEnum::Open, 0);
         assert_eq!(expected_command,command);
     }
     #[test]

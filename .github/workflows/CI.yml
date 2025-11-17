@@ -1,0 +1,27 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+        components: clippy, rustfmt 
+        profile: minimal 
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: Run Clippy
+      run: cargo clippy --all-targets -- -D warnings 
+    - name: Run Rustfmt
+      run: cargo fmt --all --check
