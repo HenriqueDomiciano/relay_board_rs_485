@@ -17,8 +17,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           target: ${{ matrix.target }}
+      
       - name: Update target 
-        run : rustup target add ${{ matrix.target }}
+        run : | 
+          sudo apt-get install mingw-w64
+          rustup component add rust-mingw
+          rustup target add ${{ matrix.target }}    
 
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
