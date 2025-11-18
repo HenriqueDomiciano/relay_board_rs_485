@@ -97,7 +97,7 @@ fn main() {
                 },
             },
             CommandTypes::Status => {
-                let status = relay_board.get_status(1, 8).data[(value-1) as usize];
+                let status = relay_board.get_status(1, 8).data[(value - 1) as usize];
                 println!("{}", status);
             }
         },
