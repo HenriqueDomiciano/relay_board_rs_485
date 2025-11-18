@@ -15,8 +15,8 @@ enum CommandTypes {
 impl Display for CommandTypes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            CommandTypes::Action => write!(f, "ACTION"),
-            CommandTypes::Status => write!(f, "STATUS"),
+            CommandTypes::Action => write!(f, "action"),
+            CommandTypes::Status => write!(f, "status"),
         }
     }
 }
@@ -97,7 +97,7 @@ fn main() {
                 },
             },
             CommandTypes::Status => {
-                let status = relay_board.get_status(1, 8).data[(value - 1) as usize];
+                let status = relay_board.get_status(1, 8).data[value as usize];
                 println!("{}", status);
             }
         },
