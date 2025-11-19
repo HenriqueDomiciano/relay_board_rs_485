@@ -5,6 +5,11 @@ with an RS-485 relay board using the `relay_board_rs_485` Rust crate. It
 allows sending action commands, querying status, and controlling
 specific relay channels.
 
+This project was used to implement an simple, small and easy to use CLI and lib to interface 
+with RS485 Modbus RTU Boards.
+
+Obs: This project does not support async actions and this may be added in the future. 
+
 ## 📦 Features
 
 -   Open and close individual relays
@@ -17,7 +22,7 @@ specific relay channels.
 
 ### **Basic Command Structure**
 
-    relay-cli <SERIAL_PORT> [FLAGS] [OPTIONS]
+    relay_board_rs_485 <SERIAL_PORT> [FLAGS] [OPTIONS]
 
 ### **Arguments and Options**
 
@@ -53,23 +58,23 @@ specific relay channels.
 
 ### **Check status of all relays**
 
-    relay-cli /dev/ttyUSB0 -c status
+    relay_board_rs_485 /dev/ttyUSB0 -c status
 
 ### **Close all relays**
 
-    relay-cli /dev/ttyUSB0 -a CloseAll
+    relay_board_rs_485 /dev/ttyUSB0 -a CloseAll
 
 ### **Open relay #3**
 
-    relay-cli /dev/ttyUSB0 -a Open --relay-value 3
+    relay_board_rs_485 /dev/ttyUSB0 -a Open --relay-value 3
 
 ### **Toggle relay #5 with 200 ms delay**
 
-    relay-cli /dev/ttyUSB0 -a Toggle --relay-value 5 -d 200
+    relay_board_rs_485 /dev/ttyUSB0 -a Toggle --relay-value 5 -d 200
 
 ### **Read status of relay #2**
 
-    relay-cli /dev/ttyUSB0 --relay-value 2 -c status
+    relay_board_rs_485 /dev/ttyUSB0 --relay-value 2 -c status
 
 ## 🧩 Code Overview
 
@@ -89,7 +94,7 @@ specific relay channels.
 
 Binary output:
 
-    target/release/relay-cli
+    target/release/
 
 ## 📜 License
 
