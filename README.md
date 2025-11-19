@@ -88,7 +88,7 @@ Other boards may or may not work.
 If you want to use the lib use the following command in your Cargo.toml file 
 
     [dependencies]
-    relay_board_rs_485 = { git = "https://github.com/HenriqueDomiciano/RelayBoardRS485.git" }
+    relay_board_rs_485 = { git = "https://github.com/HenriqueDomiciano/relay_board_rs_485.git" }
 
 ## Releases 
 
