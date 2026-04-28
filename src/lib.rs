@@ -1,8 +1,13 @@
+pub mod protocol;
+pub mod transport;
+pub mod device ; 
 use clap::ValueEnum;
 use serialport::SerialPort;
 use std::io::{self, Write};
 use std::thread::sleep;
 use std::time::Duration;
+
+
 
 const ACTION_COMMAND: u8 = 6;
 const READ_STATUS_COMMAND: u8 = 3;
@@ -18,8 +23,8 @@ pub enum ActionCommandsEnum {
     CloseAll,
 }
 
-impl ActionCommandsEnum {
-    pub fn value(&self) -> u8 {
+impl ActionCommandsEnum {   
+    #[must_use] pub fn value(&self) -> u8 {
         match *self {
             ActionCommandsEnum::Open => 0x01,
             ActionCommandsEnum::Close => 0x02,
@@ -63,9 +68,7 @@ impl StatusCommandResponseStruct {
         let crc = u16::from_be_bytes(__crc_u8);
         let validation_data = &data[..data.len() - 2];
         let validation_crc = RelayBoardRS485::mod_bus_crc_calculation(validation_data);
-        if validation_crc != crc {
-            panic!("CRC Received is different than calculated CRC");
-        }
+        assert!(!(validation_crc != crc), "CRC Received is different than calculated"); 
         Self {
             slave_id,
             function,
@@ -118,7 +121,7 @@ pub struct RelayBoardRS485 {
     address: u8,
 }
 impl RelayBoardRS485 {
-    pub fn new(serial_port: Box<dyn SerialPort>, address: u8) -> Self {
+    #[must_use] pub fn new(serial_port: Box<dyn SerialPort>, address: u8) -> Self {
         Self {
             serial_port,
             address,
@@ -168,7 +171,7 @@ impl RelayBoardRS485 {
         let last_non_zero_index = vec
             .iter()
             .rfind(|&&x| x != 0)
-            .map(|x| x as *const u8 as usize - vec.as_ptr() as usize);
+            .map(|x| std::ptr::from_ref::<u8>(x) as usize - vec.as_ptr() as usize);
 
         if let Some(index) = last_non_zero_index {
             vec.truncate(index / std::mem::size_of::<u8>() + 1);
@@ -202,7 +205,7 @@ impl RelayBoardRS485 {
                     return RelayBoardRS485::remove_trailing_zeros(final_buffer);
                 }
                 Err(e) => {
-                    eprintln!("Error {:?} reading from serial rtu", e);
+                    eprintln!("Error {e:?} reading from serial rtu");
                     panic!("Error reading modbus");
                 }
             }
@@ -265,7 +268,7 @@ impl RelayBoardRS485 {
         let mut crc: u16 = 0xFFFF;
         let crc_polinomial: u16 = 0xA001;
         for &byte in command {
-            crc ^= byte as u16;
+            crc ^= u16::from(byte);
             for _ in 0..8 {
                 if crc & 0x0001 != 0 {
                     crc = (crc >> 1) ^ crc_polinomial;

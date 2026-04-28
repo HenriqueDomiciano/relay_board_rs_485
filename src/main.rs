@@ -33,7 +33,7 @@ struct Args {
     #[arg(short = 's', long, default_value_t = 1)]
     slave_address: u8,
 
-    #[arg(short = 'c',long, default_value_t = CommandTypes::Action)]
+    #[arg(short = 'c',long, default_value_t = CommandTypes::Status)]
     command_type: CommandTypes,
 
     #[arg(short = 'a', long, required_if_eq("command_type", "Action"))]

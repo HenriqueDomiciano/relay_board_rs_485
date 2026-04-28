@@ -10,3 +10,4 @@ name = "relay_board_rs_485"
 [dependencies]
 serialport = "4.8.1"
 clap = { version = "4.4", features = ["derive"] }
+thiserror = "2.0.18"
