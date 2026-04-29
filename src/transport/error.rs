@@ -1,8 +1,4 @@
-
 use thiserror::Error;
-
-
-
 
 #[derive(Error, Debug)]
 pub enum TransportError {
@@ -14,14 +10,12 @@ pub enum TransportError {
 
     #[error("crc error")]
     UnknownError,
-    
+
     #[error("crc error")]
     UnableToGetBaudRate,
-    
+
     #[error("crc error")]
     UnableToSetTimeout,
 }
 
-pub type Result<T> =
-    std::result::Result<T, TransportError>;
-
+pub type Result<T> = std::result::Result<T, TransportError>;

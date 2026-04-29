@@ -1,26 +1,34 @@
 use std::io::{self, Write};
 use std::{thread::sleep, time::Duration};
 
-use crate::protocol::{utils};
+use crate::protocol::utils;
 
-use crate::transport::error::{Result, TransportError}; 
+use crate::transport::error::{Result, TransportError};
 use crate::transport::generic::Transport;
 
 const TIMEOUT_OFF_SET: u64 = 100;
 const TIMEOUT_MULTIPLIER: f64 = 1000.0;
 
-
 pub struct SerialTransport {
     port: Box<dyn serialport::SerialPort>,
 }
 impl Transport for SerialTransport {
-    fn write_frame(&mut self, data: Vec<u8>) -> Result<()> {;
+    fn write_frame(&mut self, data: Vec<u8>) -> Result<()> {
         match self.port.write_all(&data) {
             Ok(_) => {
-                sleep(Duration::from_millis(30)); 
-                return Ok(())
+                sleep(Duration::from_millis(30));
+                return Ok(());
             }
-            Err(_) => {return Err(TransportError::UnknownError)} 
+            Err(_) => return Err(TransportError::UnknownError),
+        }
+    }
+
+    fn flush(&mut self) -> Result<()> {
+        self.port.flush();
+
+        match self.port.clear(serialport::ClearBuffer::All) {
+            Ok(_) => Ok(()),
+            Err(e) => return Err(TransportError::UnknownError),
         }
     }
 

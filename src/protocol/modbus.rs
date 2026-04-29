@@ -8,11 +8,10 @@ use super::crc;
 use super::utils;
 
 pub struct ModBusRequest {
-    slave_addr: u8,
-    function_code: u8,
-    start_address: Vec<u8>,
-    quantitiy: Vec<u8>,
-    crc: u16,
+    pub(crate) slave_addr: u8,
+    pub(crate) function_code: u8,
+    pub(crate) start_address: Vec<u8>,
+    pub(crate) quantity: Vec<u8>,
 }
 
 impl ModBusRequest {
@@ -21,7 +20,7 @@ impl ModBusRequest {
         buffer.push(self.slave_addr);
         buffer.push(self.function_code);
         buffer.extend(&self.start_address);
-        buffer.extend(&self.quantitiy);
+        buffer.extend(&self.quantity);
         let crc_16 = crc::mod_bus_crc_calculation(&buffer);
         let crc_bytes = &crc_16.to_be_bytes();
         buffer.extend_from_slice(crc_bytes);
@@ -30,16 +29,15 @@ impl ModBusRequest {
 }
 
 pub struct ModBusResponse {
-    slave_addr: u8,
-    function_code: u8,
-    quantitiy: u8,
-    data: Vec<u8>,
-    crc: u16,
+    pub(crate) slave_addr: u8,
+    pub(crate) function_code: u8,
+    pub(crate) quantitiy: u8,
+    pub(crate) data: Vec<u8>,
+    pub(crate) crc: u16,
 }
 
 impl ModBusResponse {
-    #[must_use]
-    pub fn from_vec(response: Vec<u8>) -> Self {
+    pub fn from_vec(response: Vec<u8>) -> Result<Self, Error> {
         let slave_id = response.get(0).expect("Unable to find slave id");
         let function_code = response.get(1).expect("Unable to get function code");
         let quantity = response.get(2).expect("Unable to get quantity");
@@ -51,15 +49,21 @@ impl ModBusResponse {
         let mut buffer: Vec<u8> = vec![*slave_id, *function_code, *quantity];
         buffer.extend(__data_value_u8);
         let calculated_crc_16 = crc::mod_bus_crc_calculation(&buffer);
-        let obtained_crc_u8_slice = response.get(__data_to_read..).expect("Unable to get crc 16");
-        let obtained_crc = u16::from_be_bytes(obtained_crc_u8_slice[0..2].try_into().expect("Slice must have at least 2 bytes"));
+        let obtained_crc_u8_slice = response
+            .get(__data_to_read..)
+            .expect("Unable to get crc 16");
+        let obtained_crc = u16::from_be_bytes(
+            obtained_crc_u8_slice[0..2]
+                .try_into()
+                .expect("Slice must have at least 2 bytes"),
+        );
         assert!(calculated_crc_16 == obtained_crc);
-        return Self {
+        return Ok(Self {
             slave_addr: *slave_id,
             function_code: *function_code,
             quantitiy: *quantity,
             data: data,
             crc: obtained_crc,
-        };
+        });
     }
 }
