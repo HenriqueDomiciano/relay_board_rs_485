@@ -1,7 +1,6 @@
 use std::time::Duration;
 
-use clap::Error;
-use relay_board_rs_485::{ModBusSerialTransport, RelayBoardR4D8A08, protocol, transport::generic::Transport};
+use relay_board_rs_485::{ModBusSerialTransport, RelayBoardR4D8A08};
 use serialport::SerialPort;
 
 fn main() {
