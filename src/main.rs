@@ -4,7 +4,7 @@ use std::{
 };
 
 use clap::{Parser, ValueEnum};
-use relay_board_rs_485::{ModBusSerialTransport, RelayBoardR4D8A08, device::relay::{ActionCommand, ActionCommandsEnum}, transport::generic::Transport};
+use relay_board_rs_485::{ModBusSerialTransport, RelayBoardR4D8A08, device::relay::ActionCommandsEnum};
 
 #[derive(Debug, Clone, ValueEnum)]
 enum CommandTypes {
