@@ -1,11 +1,7 @@
-use crate::protocol::crc::mod_bus_crc_calculation;
-use serialport::SerialPort;
 use std::io::Error;
-use std::time::Duration;
 use std::u8;
 
 use super::crc;
-use super::utils;
 
 pub struct ModBusRequest {
     pub(crate) slave_addr: u8,
@@ -38,7 +34,7 @@ pub struct ModBusResponse {
 
 impl ModBusResponse {
     pub fn from_vec(response: Vec<u8>) -> Result<Self, Error> {
-        let slave_id = response.get(0).expect("Unable to find slave id");
+        let slave_id = response.first().expect("Unable to find slave id");
         let function_code = response.get(1).expect("Unable to get function code");
         let quantity = response.get(2).expect("Unable to get quantity");
         let __data_to_read: usize = (quantity + 3) as usize;
@@ -58,12 +54,12 @@ impl ModBusResponse {
                 .expect("Slice must have at least 2 bytes"),
         );
         assert!(calculated_crc_16 == obtained_crc);
-        return Ok(Self {
+        Ok(Self {
             slave_addr: *slave_id,
             function_code: *function_code,
             quantitiy: *quantity,
-            data: data,
+            data,
             crc: obtained_crc,
-        });
+        })
     }
 }

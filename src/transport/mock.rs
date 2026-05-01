@@ -20,6 +20,6 @@ impl Transport for MockTransport {
         for _ in self.queued_responses.clone() {
             self.queued_responses.remove(0);
         }
-        return Ok(());
+        Ok(())
     }
 }

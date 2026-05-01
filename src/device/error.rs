@@ -10,6 +10,9 @@ pub enum DeviceError {
 
     #[error("command error")]
     UnknownError,
+
+    #[error("command error")]
+    UnsuportedCommand
 }
 
 pub type Result<T> = std::result::Result<T, DeviceError>;

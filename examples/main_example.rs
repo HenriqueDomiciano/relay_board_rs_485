@@ -1,36 +1,37 @@
 use std::time::Duration;
 
-use relay_board_rs_485::RelayBoardRS485;
+use clap::Error;
+use relay_board_rs_485::{ModBusSerialTransport, RelayBoardR4D8A08, protocol, transport::generic::Transport};
+use serialport::SerialPort;
 
 fn main() {
     let serial_port = serialport::new("/dev/ttyUSB0", 9600)
         .timeout(Duration::from_millis(1000))
         .open()
         .expect("Unable to open port");
-    let mut relay_board = RelayBoardRS485::new(serial_port, 0x01);
+    let protocol = ModBusSerialTransport{port:serial_port}; 
+    let mut relay_board = RelayBoardR4D8A08{protocol};
     //Open All relays
-    relay_board.open_all(100);
+    relay_board.open_all(1,100).expect("Error");
     //Close All relays
-    relay_board.close_all(0);
-    //Change relay address
-    relay_board.change_address(2);
+    relay_board.close_all(1,0).expect("Error");
     // Open Specific relay
-    relay_board.open_channel(1, 0);
+    relay_board.open_channel(1,1, 0).expect("Error");
     // Delay time command
-    relay_board.delay_time(1, 0);
+    relay_board.delay_time(1,1, 0).expect("Error");
     // Latch Channel
-    relay_board.latch_channel(1, 0);
+    relay_board.latch_channel(1,1, 0).expect("Error");
     // Toogle specific channel
-    relay_board.toogle_channel(1, 0);
+    relay_board.toogle_channel(1,1, 0).expect("Error");
     // Close specific close channel
-    relay_board.close_channel(3, 10);
+    relay_board.close_channel(1,3, 10).expect("Error");
     //Open the relay board
-    relay_board.open_channel(2, 10);
+    relay_board.open_channel(1,2, 10).expect("Error");
     // Toggle Channel command
-    relay_board.toogle_channel(3, 10);
+    relay_board.toogle_channel(1,3, 10).expect("Error");
     // Return the status command Structure, that it's the return value
-    relay_board.get_status(1, 7);
+    relay_board.read_status(1,1, 7).expect("Error");
 
-    let result = relay_board.get_status(1, 8);
-    println!("{:?}", result);
+    let result = relay_board.read_status(1,1, 8);
+    println!("{:?}", result.unwrap().data);
 }

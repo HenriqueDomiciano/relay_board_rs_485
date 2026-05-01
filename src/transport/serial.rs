@@ -9,26 +9,26 @@ use crate::transport::generic::Transport;
 const TIMEOUT_OFF_SET: u64 = 100;
 const TIMEOUT_MULTIPLIER: f64 = 1000.0;
 
-pub struct SerialTransport {
-    port: Box<dyn serialport::SerialPort>,
+pub struct ModBusSerialTransport {
+    pub port: Box<dyn serialport::SerialPort>,
 }
-impl Transport for SerialTransport {
+impl Transport for ModBusSerialTransport {
     fn write_frame(&mut self, data: Vec<u8>) -> Result<()> {
         match self.port.write_all(&data) {
             Ok(_) => {
                 sleep(Duration::from_millis(30));
-                return Ok(());
+                Ok(())
             }
-            Err(_) => return Err(TransportError::UnknownError),
+            Err(_) => Err(TransportError::UnknownError),
         }
     }
 
     fn flush(&mut self) -> Result<()> {
-        self.port.flush();
+        let _ = self.port.flush();
 
         match self.port.clear(serialport::ClearBuffer::All) {
             Ok(_) => Ok(()),
-            Err(e) => return Err(TransportError::UnknownError),
+            Err(_e) => Err(TransportError::UnknownError),
         }
     }
 
@@ -58,7 +58,7 @@ impl Transport for SerialTransport {
                     let data = utils::remove_trailing_zeros(final_buffer);
                     return Ok(data);
                 }
-                Err(e) => {
+                Err(_e) => {
                     return Err(TransportError::UnknownError);
                 }
             }
