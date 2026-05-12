@@ -68,7 +68,7 @@ impl ActionCommandsEnum {
 }
 
 pub struct StatusCommandResponse {
-    pub  slave_id: u8,
+    pub slave_id: u8,
     pub function: u8,
     pub data_lenght: u8,
     pub data: Box<Vec<u16>>,

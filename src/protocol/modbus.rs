@@ -1,5 +1,4 @@
 use std::io::Error;
-use std::u8;
 
 use super::crc;
 
