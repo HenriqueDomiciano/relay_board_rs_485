@@ -68,11 +68,11 @@ impl ActionCommandsEnum {
 }
 
 pub struct StatusCommandResponse {
-    slave_id: u8,
-    function: u8,
-    data_lenght: u8,
+    pub  slave_id: u8,
+    pub function: u8,
+    pub data_lenght: u8,
     pub data: Box<Vec<u16>>,
-    crc: u16,
+    pub crc: u16,
 }
 impl StatusCommandResponse {
     pub fn from_modbus_r4_response(response: ModBusResponse) -> Result<Self> {
@@ -173,7 +173,7 @@ pub struct RelayBoardWaveShare<T: Transport> {
     protocol: T,
 }
 impl<T: Transport> RelayBoardWaveShare<T> {
-    fn get_status(&mut self, status_command: StatusCommand) -> Result<StatusCommandResponse> {
+    pub fn get_status(&mut self, status_command: StatusCommand) -> Result<StatusCommandResponse> {
         self.protocol.flush().expect("Error flushing serial");
         let command = status_command.to_mod_bus_command();
         let _ = self
@@ -192,7 +192,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
             Err(_) => Err(DeviceError::ParsingError),
         }
     }
-    fn send_command(&mut self, command: ActionCommand) -> Result<()> {
+    pub fn send_command(&mut self, command: ActionCommand) -> Result<()> {
         let mod_bus_command = match command.to_wave_share_mod_bus_command() {
             Ok(command) => command,
             Err(_) => return Err(DeviceError::ParsingError),
@@ -206,7 +206,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
             Err(_) => Err(DeviceError::UnableToSendError),
         }
     }
-    fn close_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+    pub fn close_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -217,7 +217,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         self.send_command(command)
     }
 
-    fn open_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+    pub fn open_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -228,7 +228,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         self.send_command(command)
     }
 
-    fn toogle_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+    pub fn toogle_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -239,7 +239,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         self.send_command(command)
     }
 
-    fn latch_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+    pub fn latch_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -249,7 +249,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         };
         self.send_command(command)
     }
-    fn delay_time(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+    pub fn delay_time(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -259,7 +259,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         };
         self.send_command(command)
     }
-    fn open_all(&mut self, slave_addr: u8, delay_time: u8) -> Result<()> {
+    pub fn open_all(&mut self, slave_addr: u8, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: OPERATE_ALL_COMMAND_WAVE_SHARE,
@@ -270,7 +270,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         self.send_command(command)
     }
 
-    fn close_all(&mut self, slave_addr: u8, delay_time: u8) -> Result<()> {
+    pub fn close_all(&mut self, slave_addr: u8, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: OPERATE_ALL_COMMAND_WAVE_SHARE,
@@ -280,7 +280,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         };
         self.send_command(command)
     }
-    fn read_status(
+    pub fn read_status(
         &mut self,
         slave_addr: u8,
         starting_register: u16,
