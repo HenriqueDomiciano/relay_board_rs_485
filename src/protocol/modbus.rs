@@ -2,7 +2,7 @@ use std::io::Error;
 
 use super::crc;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct ModBusRequest {
     pub(crate) slave_addr: u8,
     pub(crate) function_code: u8,
@@ -23,7 +23,7 @@ impl ModBusRequest {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct ModBusResponse {
     pub(crate) slave_addr: u8,
     pub(crate) function_code: u8,

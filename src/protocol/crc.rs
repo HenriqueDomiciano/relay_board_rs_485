@@ -1,3 +1,4 @@
+#[must_use]
 pub fn mod_bus_crc_calculation(command: &[u8]) -> u16 {
     let mut crc: u16 = 0xFFFF;
     let crc_polinomial: u16 = 0xA001;

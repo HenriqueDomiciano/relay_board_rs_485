@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use relay_board_rs_485::{ModBusSerialTransport, RelayBoardR4D8A08};
-use serialport::SerialPort;
 
 fn main() {
     let serial_port = serialport::new("/dev/ttyUSB0", 9600)

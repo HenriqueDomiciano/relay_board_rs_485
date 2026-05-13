@@ -29,7 +29,7 @@ const OPERATE_ALL_COMMAND_WAVE_SHARE: u8 = 0xff;
 const ACTION_COMMAND_WAVE_SHARE: u8 = 5;
 const READ_STATUS_COMMAND_WAVE_SHARE: u8 = 1;
 
-#[derive(Debug, Clone, PartialEq, ValueEnum)]
+#[derive(Debug, Clone, PartialEq, Eq, ValueEnum)]
 pub enum ActionCommandsEnum {
     Open,
     Close,
@@ -41,28 +41,29 @@ pub enum ActionCommandsEnum {
     CloseAll,
 }
 impl ActionCommandsEnum {
-    pub fn to_value_r4(&self) -> u8 {
+    #[must_use]
+    pub const fn to_value_r4(&self) -> u8 {
         match *self {
-            ActionCommandsEnum::Open => 0x01,
-            ActionCommandsEnum::Close => 0x02,
-            ActionCommandsEnum::Toggle => 0x03,
-            ActionCommandsEnum::Latch => 0x04,
-            ActionCommandsEnum::Momentary => 0x05,
-            ActionCommandsEnum::Delay => 0x06,
-            ActionCommandsEnum::OpenAll => 0x07,
-            ActionCommandsEnum::CloseAll => 0x08,
+            Self::Open => 0x01,
+            Self::Close => 0x02,
+            Self::Toggle => 0x03,
+            Self::Latch => 0x04,
+            Self::Momentary => 0x05,
+            Self::Delay => 0x06,
+            Self::OpenAll => 0x07,
+            Self::CloseAll => 0x08,
         }
     }
-    pub fn to_value_wave_share(&self) -> Result<u16> {
+    pub const fn to_value_wave_share(&self) -> Result<u16> {
         match *self {
-            ActionCommandsEnum::Open => Ok(0xFF00),
-            ActionCommandsEnum::Close => Ok(0x0000),
-            ActionCommandsEnum::Toggle => Ok(0x5500),
-            ActionCommandsEnum::Latch => Ok(0x0200),
-            ActionCommandsEnum::Momentary => Ok(0x0400),
-            ActionCommandsEnum::Delay => Err(DeviceError::UnsuportedCommand),
-            ActionCommandsEnum::OpenAll => Err(DeviceError::UnsuportedCommand),
-            ActionCommandsEnum::CloseAll => Err(DeviceError::UnsuportedCommand),
+            Self::Open => Ok(0xFF00),
+            Self::Close => Ok(0x0000),
+            Self::Toggle => Ok(0x5500),
+            Self::Latch => Ok(0x0200),
+            Self::Momentary => Ok(0x0400),
+            Self::Delay => Err(DeviceError::UnsuportedCommand),
+            Self::OpenAll => Err(DeviceError::UnsuportedCommand),
+            Self::CloseAll => Err(DeviceError::UnsuportedCommand),
         }
     }
 }
@@ -123,6 +124,7 @@ pub struct StatusCommand {
     pub(crate) register_length: u16,
 }
 impl StatusCommand {
+    #[must_use]
     pub fn to_mod_bus_command(&self) -> ModBusRequest {
         let mut buffer: [u8; 6] = [0; 6];
         buffer[2..4].copy_from_slice(&self.starting_register_address.to_be_bytes());
@@ -417,8 +419,13 @@ impl<T: Transport> RelayBoardR4D8A08<T> {
         };
         self.send_command(command)
     }
-    
-    pub fn momentary_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+
+    pub fn momentary_channel(
+        &mut self,
+        slave_addr: u8,
+        channel: u16,
+        delay_time: u8,
+    ) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_R4,

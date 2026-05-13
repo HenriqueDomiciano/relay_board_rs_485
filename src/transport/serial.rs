@@ -15,7 +15,7 @@ pub struct ModBusSerialTransport {
 impl Transport for ModBusSerialTransport {
     fn write_frame(&mut self, data: Vec<u8>) -> Result<()> {
         match self.port.write_all(&data) {
-            Ok(_) => {
+            Ok(()) => {
                 sleep(Duration::from_millis(30));
                 Ok(())
             }
@@ -27,7 +27,7 @@ impl Transport for ModBusSerialTransport {
         let _ = self.port.flush();
 
         match self.port.clear(serialport::ClearBuffer::All) {
-            Ok(_) => Ok(()),
+            Ok(()) => Ok(()),
             Err(_e) => Err(TransportError::UnknownError),
         }
     }
@@ -37,11 +37,11 @@ impl Transport for ModBusSerialTransport {
             Ok(baud_rate) => baud_rate,
             Err(_) => return Err(TransportError::UnableToGetBaudRate),
         };
-        let timeout_ms: f64 = (35_f64 / baud_rate as f64) * TIMEOUT_MULTIPLIER;
+        let timeout_ms: f64 = (35_f64 / f64::from(baud_rate)) * TIMEOUT_MULTIPLIER;
         match self.port.set_timeout(Duration::from_millis(
             timeout_ms.ceil() as u64 + TIMEOUT_OFF_SET,
         )) {
-            Ok(_) => (),
+            Ok(()) => (),
             Err(_) => return Err(TransportError::UnableToSetTimeout),
         }
         let mut serial_buffer: Vec<u8> = vec![0; 256];

@@ -1,3 +1,4 @@
+#[must_use]
 pub fn remove_trailing_zeros(mut vec: Vec<u8>) -> Vec<u8> {
     let last_non_zero_index = vec
         .iter()

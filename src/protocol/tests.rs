@@ -16,7 +16,7 @@ fn test_to_vec_with_bytes() {
     let expected_command: Vec<u8> = [0x01, 0x06, 0x0, 1, 1, 0, 0xd9, 0x9a].to_vec();
     let mod_bus_struct = ModBusRequest {
         slave_addr: 1,
-        function_code: 06,
+        function_code: 6,
         start_address: vec![0, 1],
         quantity: vec![1, 0],
     };

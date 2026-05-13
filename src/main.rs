@@ -17,8 +17,8 @@ enum CommandTypes {
 impl Display for CommandTypes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            CommandTypes::Action => write!(f, "action"),
-            CommandTypes::Status => write!(f, "status"),
+            Self::Action => write!(f, "action"),
+            Self::Status => write!(f, "status"),
         }
     }
 }
@@ -91,7 +91,7 @@ fn main() {
                         .read_status(args.slave_address, 1, 8)
                         .unwrap()
                         .data[value as usize];
-                    println!("{}", status);
+                    println!("{status}");
                 }
                 Some(action) => match action {
                     ActionCommandsEnum::Close => {
@@ -131,7 +131,7 @@ fn main() {
                     .read_status(args.slave_address, 1, 8)
                     .unwrap()
                     .data[(value - 1) as usize];
-                println!("{}", status);
+                println!("{status}");
             }
         },
     }
