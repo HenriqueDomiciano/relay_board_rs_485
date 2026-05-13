@@ -13,7 +13,7 @@ pub trait Relay {
         starting_register: u16,
         register_length: u16,
     ) -> Result<StatusCommandResponse>;
-    fn toogle_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()>;
+    fn toggle_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()>;
     fn open_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()>;
     fn close_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()>;
     fn latch_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()>;
@@ -117,10 +117,10 @@ impl StatusCommandResponse {
 }
 
 pub struct StatusCommand {
-    slave_id: u8,
-    function: u8,
-    starting_register_address: u16,
-    register_length: u16,
+    pub(crate) slave_id: u8,
+    pub(crate) function: u8,
+    pub(crate) starting_register_address: u16,
+    pub(crate) register_length: u16,
 }
 impl StatusCommand {
     pub fn to_mod_bus_command(&self) -> ModBusRequest {
@@ -137,13 +137,13 @@ impl StatusCommand {
         }
     }
 }
-
+#[derive(PartialEq, Debug)]
 pub struct ActionCommand {
-    slave_id: u8,
-    function: u8,
-    address: u16,
-    command: ActionCommandsEnum,
-    delay_time: u8,
+    pub(crate) slave_id: u8,
+    pub(crate) function: u8,
+    pub(crate) address: u16,
+    pub(crate) command: ActionCommandsEnum,
+    pub(crate) delay_time: u8,
 }
 impl ActionCommand {
     pub fn to_r4_mod_bus_command(&self) -> Result<ModBusRequest> {
@@ -228,7 +228,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         self.send_command(command)
     }
 
-    pub fn toogle_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+    pub fn toggle_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -295,8 +295,12 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         self.get_status(command)
     }
 }
-
+/// Modbus RTU 8-Channel Relay Board (R4D8A08) operating over an RS485 interface.
+///
+/// Manages the physical triggering of relays by sending structured frames
+/// and parsing incoming responses using a generic communication transport.
 pub struct RelayBoardR4D8A08<T: Transport> {
+    /// The physical or virtual transport layer handling frame transmissions.
     pub protocol: T,
 }
 impl<T: Transport> RelayBoardR4D8A08<T> {
@@ -333,6 +337,19 @@ impl<T: Transport> RelayBoardR4D8A08<T> {
             Err(_) => Err(DeviceError::UnableToSendError),
         }
     }
+    /// Closes the normally-open contacts of a specific relay channel.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use relay_board_rs_485::RelayBoardR4D8A08;
+    /// # use relay_board_rs_485::transport::mock::MockTransport;
+    /// # let transport = MockTransport { sent_frames: Vec::new(), queued_responses: Vec::new() };
+    /// # let mut relay = RelayBoardR4D8A08 { protocol: transport };
+    /// // Closes channel 1 on Modbus slave address 1 with no delay.
+    /// let result = relay.close_channel(1, 1, 0);
+    /// assert!(result.is_ok());
+    /// ```
     pub fn close_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
@@ -343,7 +360,19 @@ impl<T: Transport> RelayBoardR4D8A08<T> {
         };
         self.send_command(command)
     }
-
+    /// Opens the normally-open contacts of a specific relay channel.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use relay_board_rs_485::RelayBoardR4D8A08;
+    /// # use relay_board_rs_485::transport::mock::MockTransport;
+    /// # let transport = MockTransport { sent_frames: Vec::new(), queued_responses: Vec::new() };
+    /// # let mut relay = RelayBoardR4D8A08 { protocol: transport };
+    /// // Opens channel 2 on Modbus slave address 1 with no delay.
+    /// let result = relay.open_channel(1, 2, 0);
+    /// assert!(result.is_ok());
+    /// ```
     pub fn open_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
@@ -354,8 +383,20 @@ impl<T: Transport> RelayBoardR4D8A08<T> {
         };
         self.send_command(command)
     }
-
-    pub fn toogle_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+    /// toggles the contacts of a specific relay channel.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use relay_board_rs_485::RelayBoardR4D8A08;
+    /// # use relay_board_rs_485::transport::mock::MockTransport;
+    /// # let transport = MockTransport { sent_frames: Vec::new(), queued_responses: Vec::new() };
+    /// # let mut relay = RelayBoardR4D8A08 { protocol: transport };
+    /// // Opens channel 2 on Modbus slave address 1 with no delay.
+    /// let result = relay.toggle_channel(1, 2, 0);
+    /// assert!(result.is_ok());
+    /// ```
+    pub fn toggle_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_R4,
@@ -376,6 +417,17 @@ impl<T: Transport> RelayBoardR4D8A08<T> {
         };
         self.send_command(command)
     }
+    
+    pub fn momentary_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+        let command = ActionCommand {
+            slave_id: slave_addr,
+            function: ACTION_COMMAND_R4,
+            address: channel,
+            command: ActionCommandsEnum::Momentary,
+            delay_time,
+        };
+        self.send_command(command)
+    }
     pub fn delay_time(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
@@ -386,6 +438,16 @@ impl<T: Transport> RelayBoardR4D8A08<T> {
         };
         self.send_command(command)
     }
+    /// Opens all 8 relay channels on the target board simultaneously.
+    ///
+    /// # Examples
+    /// ```
+    /// # use relay_board_rs_485::RelayBoardR4D8A08;
+    /// # use relay_board_rs_485::transport::mock::MockTransport;
+    /// # let transport = MockTransport { sent_frames: Vec::new(), queued_responses: Vec::new() };
+    /// # let mut relay = RelayBoardR4D8A08 { protocol: transport };
+    /// assert!(relay.open_all(1, 0).is_ok());
+    /// ```
     pub fn open_all(&mut self, slave_addr: u8, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,
@@ -396,7 +458,16 @@ impl<T: Transport> RelayBoardR4D8A08<T> {
         };
         self.send_command(command)
     }
-
+    /// Closes all 8 relay channels on the target board simultaneously.
+    ///
+    /// # Examples
+    /// ```
+    /// # use relay_board_rs_485::RelayBoardR4D8A08;
+    /// # use relay_board_rs_485::transport::mock::MockTransport;
+    /// # let transport = MockTransport { sent_frames: Vec::new(), queued_responses: Vec::new() };
+    /// # let mut relay = RelayBoardR4D8A08 { protocol: transport };
+    /// assert!(relay.close_all(1, 0).is_ok());
+    /// ```
     pub fn close_all(&mut self, slave_addr: u8, delay_time: u8) -> Result<()> {
         let command = ActionCommand {
             slave_id: slave_addr,

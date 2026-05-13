@@ -2,13 +2,13 @@ use std::io::Error;
 
 use super::crc;
 
+#[derive(PartialEq, Debug)]
 pub struct ModBusRequest {
     pub(crate) slave_addr: u8,
     pub(crate) function_code: u8,
     pub(crate) start_address: Vec<u8>,
     pub(crate) quantity: Vec<u8>,
 }
-
 impl ModBusRequest {
     pub fn to_vec_with_bytes(self) -> Result<Vec<u8>, Error> {
         let mut buffer: Vec<u8> = Vec::new();
@@ -23,6 +23,7 @@ impl ModBusRequest {
     }
 }
 
+#[derive(PartialEq, Debug)]
 pub struct ModBusResponse {
     pub(crate) slave_addr: u8,
     pub(crate) function_code: u8,

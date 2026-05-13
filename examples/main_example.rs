@@ -20,14 +20,14 @@ fn main() {
     relay_board.delay_time(1, 1, 0).expect("Error");
     // Latch Channel
     relay_board.latch_channel(1, 1, 0).expect("Error");
-    // Toogle specific channel
-    relay_board.toogle_channel(1, 1, 0).expect("Error");
+    // toggle specific channel
+    relay_board.toggle_channel(1, 1, 0).expect("Error");
     // Close specific close channel
     relay_board.close_channel(1, 3, 10).expect("Error");
     //Open the relay board
     relay_board.open_channel(1, 2, 10).expect("Error");
     // Toggle Channel command
-    relay_board.toogle_channel(1, 3, 10).expect("Error");
+    relay_board.toggle_channel(1, 3, 10).expect("Error");
     // Return the status command Structure, that it's the return value
     relay_board.read_status(1, 1, 7).expect("Error");
 

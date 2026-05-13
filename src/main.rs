@@ -113,7 +113,7 @@ fn main() {
                         );
                     }
                     ActionCommandsEnum::Toggle => {
-                        let _ = relay_board.toogle_channel(
+                        let _ = relay_board.toggle_channel(
                             args.slave_address,
                             value,
                             args.delay_time_ms,
