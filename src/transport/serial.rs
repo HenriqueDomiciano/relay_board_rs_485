@@ -1,7 +1,7 @@
+use crate::protocol::utils;
+use log::{debug, warn};
 use std::io::{self, Write};
 use std::{thread::sleep, time::Duration};
-
-use crate::protocol::utils;
 
 use crate::transport::error::{Result, TransportError};
 use crate::transport::generic::Transport;
@@ -14,6 +14,7 @@ pub struct ModBusSerialTransport {
 }
 impl Transport for ModBusSerialTransport {
     fn write_frame(&mut self, data: Vec<u8>) -> Result<()> {
+        debug!("Writing frame {:?}", data);
         match self.port.write_all(&data) {
             Ok(()) => {
                 sleep(Duration::from_millis(30));
@@ -25,7 +26,7 @@ impl Transport for ModBusSerialTransport {
 
     fn flush(&mut self) -> Result<()> {
         let _ = self.port.flush();
-
+        debug!("Flushing serial port");
         match self.port.clear(serialport::ClearBuffer::All) {
             Ok(()) => Ok(()),
             Err(_e) => Err(TransportError::UnknownError),
@@ -33,6 +34,7 @@ impl Transport for ModBusSerialTransport {
     }
 
     fn read_frame(&mut self) -> Result<Vec<u8>> {
+        debug!("Starting reading frame");
         let baud_rate = match self.port.baud_rate() {
             Ok(baud_rate) => baud_rate,
             Err(_) => return Err(TransportError::UnableToGetBaudRate),
@@ -56,9 +58,11 @@ impl Transport for ModBusSerialTransport {
                 }
                 Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {
                     let data = utils::remove_trailing_zeros(final_buffer);
+                    debug!("Received data {:?}", data);
                     return Ok(data);
                 }
                 Err(_e) => {
+                    warn!("There was an error on transport layer reading {:?}", _e);
                     return Err(TransportError::UnknownError);
                 }
             }

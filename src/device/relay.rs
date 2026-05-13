@@ -1,5 +1,6 @@
 use crate::device::error::{DeviceError, Result};
 use clap::ValueEnum;
+use log::info;
 
 use crate::{
     protocol::modbus::{ModBusRequest, ModBusResponse},
@@ -209,6 +210,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         }
     }
     pub fn close_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+        info!("Closing relay - slave {slave_addr} - channel {channel} - delay_time {delay_time}");
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -220,6 +222,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
     }
 
     pub fn open_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+        info!("Opening relay - slave {slave_addr} - channel {channel} - delay_time {delay_time}");
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -231,6 +234,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
     }
 
     pub fn toggle_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+        info!("Toggling relay - slave {slave_addr} - channel {channel} - delay_time {delay_time}");
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -242,6 +246,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
     }
 
     pub fn latch_channel(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+        info!("Latching relay - slave {slave_addr} - channel {channel} - delay_time {delay_time}");
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -252,6 +257,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         self.send_command(command)
     }
     pub fn delay_time(&mut self, slave_addr: u8, channel: u16, delay_time: u8) -> Result<()> {
+        info!("Applying delay - slave {slave_addr} - channel {channel} - delay_time {delay_time}");
         let command = ActionCommand {
             slave_id: slave_addr,
             function: ACTION_COMMAND_WAVE_SHARE,
@@ -262,6 +268,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         self.send_command(command)
     }
     pub fn open_all(&mut self, slave_addr: u8, delay_time: u8) -> Result<()> {
+        info!("Opening all relays");
         let command = ActionCommand {
             slave_id: slave_addr,
             function: OPERATE_ALL_COMMAND_WAVE_SHARE,
@@ -273,6 +280,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
     }
 
     pub fn close_all(&mut self, slave_addr: u8, delay_time: u8) -> Result<()> {
+        info!("Closing all relays");
         let command = ActionCommand {
             slave_id: slave_addr,
             function: OPERATE_ALL_COMMAND_WAVE_SHARE,
@@ -288,6 +296,7 @@ impl<T: Transport> RelayBoardWaveShare<T> {
         starting_register: u16,
         register_length: u16,
     ) -> Result<StatusCommandResponse> {
+        info!("Reading relays status");
         let command = StatusCommand {
             slave_id: slave_addr,
             function: READ_STATUS_COMMAND_WAVE_SHARE,
