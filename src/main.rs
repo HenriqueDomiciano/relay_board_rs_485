@@ -90,7 +90,7 @@ fn main() {
                     let status = relay_board
                         .read_status(args.slave_address, 1, 8)
                         .unwrap()
-                        .data[(value-1) as usize];
+                        .data[(value - 1) as usize];
                     println!("{status}");
                 }
                 Some(action) => match action {
